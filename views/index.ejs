@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToDo</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+<body>
+    <div class="container">
+        <form action="/" method = "POST" autocomplete="off">
+            <h1>Simple ToDoList</h1>
+            <input type="text" placeholder="Write your task here" name="aTask" required>
+            <button type="submit">Add</button>
+        </form>
+
+        <% if(data) { %>
+            <% data.forEach(aTask => { %>
+                <div class="todo-container">
+                    <div class="todo-item">
+                        <%= aTask.todo %>
+                    </div>
+                    <div>
+                        <button class="btn btn-primary todo-edit" data-id="<%= aTask.id %>">Edit</button>
+                        <button class="btn btn-danger todo-delete" data-id="<%= aTask.id %>">Delete</button>
+                    </div>
+                </div>
+                
+           <% }) %>
+        <% }%>
+    </div>
+
+    <script>
+        const deleteButton = document.querySelectorAll(".todo-delete")
+
+        deleteButton.forEach((button, i) => {
+            button.addEventListener("click", () => {
+                const endPoint = `/${button.classList[1]}`
+                fetch(endPoint, {
+                    method: "DELETE"
+                })
+                window.location.href = "/"
+            })
+        })
+        const editButtons = document.querySelectorAll(".todo-edit");
+
+editButtons.forEach(button => {
+    button.addEventListener("click", () => {
+        const taskId = button.dataset.id;
+        const updatedText = prompt("Enter updated task:");
+        if (updatedText !== null) {
+            fetch(`/${taskId}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ updatedText })
+            })
+            .then(response => {
+                if (response.ok) {
+                    window.location.href = "/";
+                } else {
+                    throw new Error("Failed to update task");
+                }
+            })
+            .catch(error => {
+                console.error("Error updating task:", error);
+                alert("Failed to update task. Please try again.");
+            });
+        }
+    });
+});
+
+    </script>
+</body>
+</html>
